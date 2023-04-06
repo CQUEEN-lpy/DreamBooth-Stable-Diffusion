@@ -1,11 +1,10 @@
-from dataclasses import dataclass
+from diffusers.utils import logging
+logging.disable_progress_bar()
 from diffusers import StableDiffusionPipeline
 import torch
 import argparse, os, json
 from tqdm.auto import tqdm
-from diffusers.utils import logging
-
-#logging.disable_progress_bar()
+import re
 
 def parse_args():
     parser = argparse.ArgumentParser(description="generating images using the frozen pretrained diffusion model")
@@ -13,7 +12,7 @@ def parse_args():
     parser.add_argument(
         "--num_per_epoch",
         type=int,
-        default=1,
+        default=32,
         required=False,
         help="How many images are generated in one epoch",
     )
@@ -76,6 +75,7 @@ if __name__ == '__main__':
 
     pipe = StableDiffusionPipeline.from_pretrained(config.model_id, torch_dtype=torch.float32)
     pipe = pipe.to("cuda")
+    os.makedirs(config.save_path, exist_ok=True)
 
     for subject in config.subjects:
         cls = class_dict[subject]
@@ -83,21 +83,27 @@ if __name__ == '__main__':
         count = config.num_cls
         counter = 0
         dir_path = os.path.join(config.save_path, subject)
+        os.makedirs(dir_path, exist_ok=True)
         progress_bar = tqdm(total=config.num_cls)
         progress_bar.set_description(f"Generating Images for subject: {subject}")
 
         while count > 0:
 
             for prompt in prompt_list:
+                prompt = prompt.replace('[V]', '', 3)
+                prompt = re.sub(r'\s+', ' ', prompt)
+
                 num_images_per_prompt = config.num_per_epoch if count - config.num_per_epoch > 0 else count
                 count += -config.num_per_epoch
 
-                images = pipe(prompt, num_images_per_prompt=num_images_per_prompt).images
-                for image in images:
+                imagess = pipe(prompt, num_images_per_prompt=num_images_per_prompt).images
+                for image in imagess:
                     path = os.path.join(dir_path, f'{str(counter).zfill(5)}.jpg')
                     image.save(path)
                     counter += 1
                     progress_bar.update(1)
+
+                torch.cuda.empty_cache()
 
 
 
