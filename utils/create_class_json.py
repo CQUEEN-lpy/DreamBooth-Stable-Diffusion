@@ -9,4 +9,4 @@ with open('./data/class.info', 'r') as f:
 
 with open('./data/class.json', 'w') as f:
     json.dump(dict, f)
-    #test
+    #testss
