@@ -1,14 +1,8 @@
 import json
-
-with open('./data/class.info', 'r') as f:
-    dict = {}
-    for line in f:
-        line = line[:-1] if '\n' in line else line
-        subject, cls = line.split(',')
-        dict[subject] = cls
-
-with open('./data/class.json', 'w') as f:
-    json.dump(dict, f)
-
-
-
+with open('./data/prompt_simple.json', 'r') as f:
+    dict = json.load(f)
+    for i in dict:
+        print(i)
+        for j in dict[i]:
+            print(j)
+        print('-----------')
