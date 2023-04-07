@@ -103,7 +103,5 @@ if __name__ == '__main__':
                     counter += 1
                     progress_bar.update(1)
 
-                torch.cuda.empty_cache()
-
 
 
