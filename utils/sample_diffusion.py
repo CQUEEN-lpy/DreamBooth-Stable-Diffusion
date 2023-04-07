@@ -53,7 +53,7 @@ def parse_args():
         '--subjects',
         nargs='+',
         type=str,
-        default=['fancy_boot', 'dog6', 'cat2', 'red_cartoon', 'teapot'],
+        default=['dog6', 'cat2', 'red_cartoon', 'teapot'],
         help='The subject id',
     )
 
