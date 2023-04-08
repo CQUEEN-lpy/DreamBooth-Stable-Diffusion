@@ -1,26 +1,6 @@
 import os
 import json
 
-with open('../data/class.json', 'r') as f:
-    class_dict = json.load(f)
-
-with open('../data/prompt_simple.json', 'w') as f:
-
-    subject_path = '../data/img/subject'
-    prompt_dict = {}
-
-    for i in os.listdir(subject_path):
-        try:
-            cls = class_dict[i]
-        except:
-            continue
-        prompt_dict[cls] = []
-
-        num_prompt = len(os.listdir(os.path.join(subject_path, i)))
-        for i in range(num_prompt):
-            prompt_dict[cls].append(f'a [V] {cls}')
-
-    json.dump(prompt_dict, f)
 
 
 def create_simple_prompt_real():
@@ -56,6 +36,7 @@ def create_simple_prompt_generated(num=1000):
         class_dict = json.load(f)
 
     with open('../data/prompt_simple_generated.json', 'w') as f:
+        prompt_dict = {}
         generated_path = '../data/img/simple_generated'
         subject_path = '../data/img/subject'
 
@@ -64,7 +45,7 @@ def create_simple_prompt_generated(num=1000):
                 cls = class_dict[i]
             except:
                 continue
-            prompt_dict[cls] = []
+            prompt_dict[i] = []
 
             for file_id in range(num):
                 file_name = f'{str(file_id).zfill(5)}.jpg'
@@ -75,7 +56,7 @@ def create_simple_prompt_generated(num=1000):
                     'prompt': f'a [V] {cls}'
                 }
 
-                prompt_dict[cls].append(item)
+                prompt_dict[i].append(item)
 
         json.dump(prompt_dict, f)
 
