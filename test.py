@@ -1,5 +1,5 @@
 import json
-path = './data/prompt_simple_real.json'
+path = './data/prompt_simple_generated.json'
 with open(path, 'r') as f:
     dict = json.load(f)
 
