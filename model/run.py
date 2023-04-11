@@ -88,7 +88,7 @@ def parse_args():
         '--save_file',
         type=str,
         default='../log/saved_models',
-        help='the eval file to save the eval prompts',
+        help='the path to save the model checkpoints',
     )
 
     parser.add_argument(
@@ -130,6 +130,7 @@ def parse_args():
     args = parser.parse_args()
 
     os.makedirs(args.eval_path, exist_ok=True)
+    os.makedirs(args.save_path, exist_ok=True)
     return args
 
 # The transform function for dataset
@@ -341,13 +342,4 @@ if __name__ == '__main__':
             if accelerator.is_main_process:
                 # eval the image and uplaod the model to the repo
                 if (global_step+1) % config.eval_every_steps == 0 or epoch == config.num_train_epochs - 1:
-                    eval(config, step + 1, eval_list, text_encoder, vae, unet, device=accelerator.device)
-
-
-
-    
-
-
-
-
-
+                    eval(config, global_step + 1, eval_list, text_encoder, vae, unet, device=accelerator.device)
