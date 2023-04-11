@@ -1,9 +1,13 @@
-import argparse, os, json
+import argparse, os, random, string
 from tqdm.auto import tqdm
+import numpy as np
 from utils.DreamBooth_Dataset import get_dataset
 from transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
 import functools
 from torchvision import transforms
+import re
+import matplotlib.pyplot as plt
+
 def parse_args():
     parser = argparse.ArgumentParser(description="generating images using the frozen pretrained diffusion model")
 
@@ -21,6 +25,14 @@ def parse_args():
         default="runwayml/stable-diffusion-v1-5",
         required=False,
         help="the pretrained checkpoint link",
+    )
+
+    parser.add_argument(
+        "--identifier_len",
+        type=int,
+        default=3,
+        required=False,
+        help="the length of the random identifier",
     )
 
     parser.add_argument(
@@ -60,23 +72,36 @@ def parse_args():
     return args
 
 # The transform function for dataset
-def preprocess(item, transform, tokenizer):
+def preprocess(item, transform, tokenizer, identifier=None):
 
     real_images = [transform(image.convert('RGB')) for image in item['real_image']]
     generated_images = [transform(image.convert('RGB')) for image in item['generated_image']]
 
-    real_prompts = tokenizer(item['real_prompt'])
-    generated_prompts = tokenizer(item['generated_prompt'])
+    if identifier:
+        real_prompts = [s.replace('[V]', identifier) for s in item['real_prompt']]
+        generated_prompts = [re.sub(r'\s+', ' ', s.replace('[V]', '')) for s in item['generated_prompt']]
+
+    real_prompts = tokenizer(real_prompts, max_length=tokenizer.model_max_length, padding='do_not_pad', truncation=True).input_ids
+    generated_prompts = tokenizer(generated_prompts, max_length=tokenizer.model_max_length, padding='do_not_pad', truncation=True).input_ids
 
     return {
-        {
             'real_images': real_images,
-            'real_prompts': generated_images,
-            'generated_images': real_prompts,
+            'real_prompts': real_prompts,
+            'generated_images': generated_images,
             'generated_prompts': generated_prompts
         }
-    }
 
+def generate_identifier(length = 3):
+    # Define the length of the string sequence
+    length = length
+
+    # Define the pool of characters to choose from
+    characters = string.ascii_letters
+
+    # Generate the random string sequence
+    random_sequence = ''.join(random.choice(characters) for i in range(length))
+
+    return random_sequence
 
 if __name__ == '__main__':
     config = parse_args()
@@ -92,11 +117,26 @@ if __name__ == '__main__':
         transforms.Normalize([0.5], [0.5])
     ])
 
-    preprocess_fn = functools.partial(preprocess, transform=transform, tokenizer=tokenizer)
+    identifier = generate_identifier(config.identifier_len)
 
-    dataset.set_transform(transform)
+    preprocess_fn = functools.partial(preprocess, transform=transform, tokenizer=tokenizer, identifier=identifier)
 
-    print(dataset[1])
+    dataset.set_transform(preprocess_fn)
+
+    """# testing the dataset
+    fig, axs = plt.subplots(1, 4, figsize=(16, 4))
+    index = np.random.randint(0, len(dataset), 4)
+    sample_data = dataset[index]
+    for i, image in enumerate(sample_data["real_images"]):
+        axs[i].imshow(image.permute(1, 2, 0).numpy() / 2 + 0.5)
+        axs[i].set_axis_off()
+    plt.show()
+
+    for i, prompt in enumerate(sample_data['real_prompts']):
+        print(prompt)"""
+
+    
+
 
 
 
