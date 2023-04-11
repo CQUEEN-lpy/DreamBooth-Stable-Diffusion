@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def get_dataset(real_json, generated_json, subject, root_path, transform=None):
+def get_dataset(real_json, generated_json, subject, root_path):
 
     real_list = json.load(open(real_json, 'r'))[subject]
     generated_list = json.load(open(generated_json, 'r'))[subject]
@@ -43,7 +43,7 @@ def get_dataset(real_json, generated_json, subject, root_path, transform=None):
     return dataset
 
 def collate_fn(item):
-
+    pass
 
 if __name__ == '__main__':
     preprocess = transforms.Compose(
@@ -55,7 +55,7 @@ if __name__ == '__main__':
         ]
     )
 
-    dataset = get_dataset('../data/prompt_simple_real.json', '../data/prompt_simple_generated.json', 'dog6', '../data/img', transform = preprocess)
+    dataset = get_dataset('../data/prompt_simple_real.json', '../data/prompt_simple_generated.json', 'dog6', '../data/img')
     fig, axs = plt.subplots(1, 4, figsize=(16, 4))
     indexs = np.random.randint(0, len(dataset), 4)
     sample_data = dataset[indexs]
