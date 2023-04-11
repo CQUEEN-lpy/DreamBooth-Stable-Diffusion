@@ -17,7 +17,7 @@ def create_simple_prompt_real():
                 cls = class_dict[i]
             except:
                 continue
-            prompt_dict[cls] = []
+            prompt_dict[i] = []
 
             for file in os.listdir(os.path.join(subject_path, i)):
                 if '.jpg' in file:
@@ -27,7 +27,7 @@ def create_simple_prompt_real():
                         'prompt': f'a [V] {cls}'
                     }
 
-                    prompt_dict[cls].append(item)
+                    prompt_dict[i].append(item)
 
         json.dump(prompt_dict, f)
 
@@ -63,4 +63,4 @@ def create_simple_prompt_generated(num=1000):
 
 
 if __name__ == '__main__':
-    create_simple_prompt_generated()
+    create_simple_prompt_real()

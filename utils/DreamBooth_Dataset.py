@@ -45,7 +45,10 @@ if __name__ == '__main__':
         ]
     )
 
-    dataset = DreamBooth_Dataset('../data/prompt_simple_real.json', '../data/prompt_simple_generated.json', 'dog', transform=preprocess)
+    dataset = DreamBooth_Dataset('../data/prompt_simple_real.json', '../data/prompt_simple_generated.json', 'dog6', transform=preprocess, root_path='../data/img')
+
+    for i in range(10):
+        print(dataset[i])
 
 
 
