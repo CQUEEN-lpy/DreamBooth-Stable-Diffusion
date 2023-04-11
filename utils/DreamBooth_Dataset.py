@@ -4,6 +4,8 @@ from torch.utils import data
 import json
 from PIL import Image
 from torchvision import transforms
+import matplotlib.pyplot as plt
+import numpy as np
 
 class DreamBooth_Dataset(data.Dataset):
     def __init__(self, real_json, generated_json, subject, root_path, transform=None):
@@ -14,10 +16,10 @@ class DreamBooth_Dataset(data.Dataset):
         self.root_path = root_path
 
     def __len__(self):
-        print(len(self.generated_list))
+        return len(self.generated_list)
 
     def __getitem__(self, index):
-        real_index = index % len(self.generated_list)
+        real_index = len(self.generated_list)
 
         real_img = Image.open(os.path.join(self.root_path, self.real_list[real_index]['img_path'])).convert("RGB")
         generated_img = Image.open(os.path.join(self.root_path, self.generated_list[index]['img_path'])).convert("RGB")
@@ -47,8 +49,13 @@ if __name__ == '__main__':
 
     dataset = DreamBooth_Dataset('../data/prompt_simple_real.json', '../data/prompt_simple_generated.json', 'dog6', transform=preprocess, root_path='../data/img')
 
-    for i in range(10):
-        print(dataset[i])
+    fig, axs = plt.subplots(1, 4, figsize=(16, 4))
+    indexs = np.random.randint(0, len(dataset), 4)
+    sample_data = dataset[indexs]
+    for i in range(len(indexs)):
+        axs[i].imshow(sample_data['real'][i][0])
+        axs[i].set_axis_off()
+        axs[i].text(0.5, -0.2, sample_data['real'][i][1], fontsize=10, ha='center', transform=axs[i].transAxes)
 
 
 
