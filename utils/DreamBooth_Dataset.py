@@ -1,3 +1,4 @@
+import math
 import os.path
 
 from torch.utils import data
@@ -15,25 +16,46 @@ class DreamBooth_Dataset(data.Dataset):
         self.transform = transform
         self.root_path = root_path
 
+        self.real_images = []
+        self.real_prompts = []
+        for item in self.real_list:
+            real_img = Image.open(os.path.join(self.root_path, item['img_path'])).convert("RGB")
+            self.real_images.append(real_img)
+            self.real_prompts.append(item['prompt'])
+
+        self.generated_images = []
+        self.generated_prompts = []
+        for item in self.real_list:
+            generated_img = Image.open(os.path.join(self.root_path, item['img_path'])).convert("RGB")
+            self.generated_images.append(generated_img)
+            self.generated_prompts.append(item['prompt'])
+
+        repeat_time = int(math.ceil(len(self.generated_prompts) / len(self.real_images)))
+        self.real_images = self.real_images * repeat_time
+        self.real_images = self.real_images[: len(self.generated_images)]
+        self.real_prompts = self.real_prompts * repeat_time
+        self.real_prompts = self.real_prompts[: len(self.generated_images)]
+
     def __len__(self):
         return len(self.generated_list)
 
     def __getitem__(self, index):
-        real_index = len(self.generated_list)
 
-        real_img = Image.open(os.path.join(self.root_path, self.real_list[real_index]['img_path'])).convert("RGB")
-        generated_img = Image.open(os.path.join(self.root_path, self.generated_list[index]['img_path'])).convert("RGB")
+        real_imgs = self.real_images[index]
+        generated_imgs = self.generated_images[index]
 
         if self.transform:
-            real_img = self.transform(real_img)
-            generated_img = self.transform(generated_img)
+            real_imgs = self.transform(real_imgs)
+            generated_imgs = self.transform(generated_imgs)
 
-        real_prompt = self.real_list[real_index]['prompt']
-        generated_prompt = self.generated_list[index]['prompt']
+        real_prompts = self.real_prompts[index]
+        generated_prompts = self.generated_prompts[index]
 
         return {
-            'real': (real_img, real_prompt),
-            'generated': (generated_img, generated_prompt)
+            'real_img': real_imgs,
+            'real_prompt': real_prompts,
+            'generated_img': generated_imgs,
+            'generated_prompt': generated_prompts,
         }
 
 
@@ -53,9 +75,9 @@ if __name__ == '__main__':
     indexs = np.random.randint(0, len(dataset), 4)
     sample_data = dataset[indexs]
     for i in range(len(indexs)):
-        axs[i].imshow(sample_data['real'][i][0])
+        axs[i].imshow(sample_data['real_img'][i][0])
         axs[i].set_axis_off()
-        axs[i].text(0.5, -0.2, sample_data['real'][i][1], fontsize=10, ha='center', transform=axs[i].transAxes)
+        axs[i].text(0.5, -0.2, sample_data['real_prompt'][i][1], fontsize=10, ha='center', transform=axs[i].transAxes)
 
 
 
