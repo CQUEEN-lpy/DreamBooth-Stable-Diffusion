@@ -60,7 +60,19 @@ def create_simple_prompt_generated(num=1000):
 
         json.dump(prompt_dict, f)
 
+def create_eval(path, subject):
+    dict = {}
+    dict[subject] = [
+        'a [V] dog in the Acropolis',
+        'a swimming [V] dog',
+        'a [V] dog in a bucket',
+        'a sleeping [V] dog',
+        'a [V] dog in a dog house',
+        'a [V] dog getting a haircut'
+    ]
 
+    with open(path, 'w') as f:
+        json.dump(dict, f)
 
 if __name__ == '__main__':
-    create_simple_prompt_real()
+    create_eval('../data/eval.json', 'dog6')

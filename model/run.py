@@ -1,4 +1,4 @@
-import argparse, os, random, string
+import argparse, os, random, string, json
 from tqdm.auto import tqdm
 import numpy as np
 from utils.DreamBooth_Dataset import get_dataset
@@ -64,6 +64,13 @@ def parse_args():
         type=str,
         default='../data/img/eval',
         help='the eval path to save the generated images',
+    )
+
+    parser.add_argument(
+        '--eval_file',
+        type=str,
+        default='../data/img/eval.json',
+        help='the eval file to save the eval prompts',
     )
 
     args = parser.parse_args()
@@ -135,8 +142,8 @@ if __name__ == '__main__':
     for i, prompt in enumerate(sample_data['real_prompts']):
         print(prompt)"""
 
-    
-
+    eval_list = json.load(open(config.eval_file, 'r'))
+    eval_list = tokenizer([s.replace('[V]', identifier) for s in eval_list[config.subject]], max_length=tokenizer.model_max_length, padding='do_not_pad', truncation=True).input_ids
 
 
 
