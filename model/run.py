@@ -80,12 +80,12 @@ def parse_args():
     parser.add_argument(
         '--eval_file',
         type=str,
-        default='../data/img/eval.json',
+        default='../data/eval.json',
         help='the eval file to save the eval prompts',
     )
 
     parser.add_argument(
-        '--save_file',
+        '--save_path',
         type=str,
         default='../log/saved_models',
         help='the path to save the model checkpoints',
@@ -94,7 +94,7 @@ def parse_args():
     parser.add_argument(
         '--train_batch_size',
         type=int,
-        default=4,
+        default=1,
         help='the batch size for training',
     )
 
@@ -115,14 +115,14 @@ def parse_args():
     parser.add_argument(
         '--gradient_accumlation_steps',
         type=int,
-        default=2,
+        default=1,
         help='the batch size for training',
     )
 
     parser.add_argument(
         '--eval_every_steps',
         type=int,
-        default=300,
+        default=2,
         help='the batch size for training',
     )
 
@@ -140,8 +140,8 @@ def preprocess(item, transform, tokenizer, identifier=None):
     generated_images = [transform(image.convert('RGB')) for image in item['generated_image']]
 
     if identifier:
-        real_prompts = [s.replace('[V]', identifier) for s in item['real_prompt']]
-        generated_prompts = [re.sub(r'\s+', ' ', s.replace('[V]', '')) for s in item['generated_prompt']]
+        generated_prompts = [s.replace('[V]', identifier) for s in item['real_prompt']]
+        real_prompts = [re.sub(r'\s+', ' ', s.replace('[V]', '')) for s in item['generated_prompt']]
 
     real_prompts = tokenizer(real_prompts, max_length=tokenizer.model_max_length, padding='do_not_pad', truncation=True).input_ids
     generated_prompts = tokenizer(generated_prompts, max_length=tokenizer.model_max_length, padding='do_not_pad', truncation=True).input_ids
@@ -166,20 +166,20 @@ def generate_identifier(length = 3):
     return random_sequence
 
 def collate_fn(item):
-    real_images = torch.stack([img for img in item['real_images']]).to(memory_format=torch.contiguous_format).float()
-    generated_images = torch.stack([img for img in item['generated_images']]).to(memory_format=torch.contiguous_format).float()
+    real_images = torch.stack([img['real_images'] for img in item]).to(memory_format=torch.contiguous_format).float()
+    generated_images = torch.stack([img['real_images'] for img in item]).to(memory_format=torch.contiguous_format).float()
 
-    real_prompts = [prompt for prompt in item['real_prompts']]
-    generated_prompts = [prompt for prompt in item['generated_prompts']]
+    real_prompts = [prompt['real_prompts'] for prompt in item]
+    generated_prompts = [prompt['real_prompts'] for prompt in item]
 
     real_prompts = tokenizer.pad({"input_ids": real_prompts}, padding=True, return_tensors="pt")
     generated_prompts = tokenizer.pad({"input_ids": generated_prompts}, padding=True, return_tensors="pt")
 
     return{
             'real_images': real_images,
-            'real_prompts': real_prompts,
+            'real_prompts': real_prompts.input_ids,
             'generated_images': generated_images,
-            'generated_prompts': generated_prompts
+            'generated_prompts': generated_prompts.input_ids
     }
 
 def eval(config, epoch, promts, text_encoder, vae, unet, device='cuda', repo=None):
@@ -251,9 +251,10 @@ if __name__ == '__main__':
     unet.requires_grad_(True)
     unet.enable_gradient_checkpointing()
 
-    optimizer = torch.optim.AdamW([unet.parameters(), text_encoder.parameters()],
-                                  lr=config.lr, betas=(0.9, 0.999), weight_decay=1e-2,
-                                  eps=1e-08)
+    optimizer = torch.optim.AdamW([
+        {'params': unet.parameters()},
+        {'params': text_encoder.parameters()}
+    ], lr=config.lr, betas=(0.9, 0.999), weight_decay=1e-2, eps=1e-08)
 
     noise_scheduler = DDPMScheduler(
         beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear", num_train_timesteps=1000
@@ -273,13 +274,13 @@ if __name__ == '__main__':
     vae.to(accelerator.device)
 
     unet, text_encoder, optimizer, train_dataloader = accelerator.prepare(
-        unet, optimizer, train_dataloader, text_encoder
+        unet, text_encoder, optimizer, train_dataloader
     )
 
     global_step = 0
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / config.gradient_accumlation_steps)
 
-    for epoch in range(config.num_train_epochs):
+    for epoch in range(config.num_train_epoch):
         progress_bar = tqdm(total=num_update_steps_per_epoch, disable=not accelerator.is_local_main_process)
         progress_bar.set_description(f"Epoch {epoch}")
         train_loss = 0.0
@@ -303,7 +304,7 @@ if __name__ == '__main__':
 
                 # generate the noise for reparameterized trick
                 real_noise = torch.randn_like(real_latents)
-                generated_noise = torch.randn.like(generated_latents)
+                generated_noise = torch.randn_like(generated_latents)
                 bsz = real_latents.shape[0]
 
                 # get the noisy latents using scheduler
@@ -341,5 +342,5 @@ if __name__ == '__main__':
 
             if accelerator.is_main_process:
                 # eval the image and uplaod the model to the repo
-                if (global_step+1) % config.eval_every_steps == 0 or epoch == config.num_train_epochs - 1:
+                if (global_step+1) % config.eval_every_steps == 0:
                     eval(config, global_step + 1, eval_list, text_encoder, vae, unet, device=accelerator.device)
