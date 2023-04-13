@@ -11,6 +11,7 @@ import torch
 from diffusers.pipelines.stable_diffusion import StableDiffusionSafetyChecker
 from accelerate import Accelerator
 import torch.nn.functional as F
+from utils.tools import test_generated_imgs
 
 def parse_args():
     parser = argparse.ArgumentParser(description="generating images using the frozen pretrained diffusion model")
@@ -140,8 +141,8 @@ def preprocess(item, transform, tokenizer, identifier=None):
     generated_images = [transform(image.convert('RGB')) for image in item['generated_image']]
 
     if identifier:
-        generated_prompts = [s.replace('[V]', identifier) for s in item['real_prompt']]
-        real_prompts = [re.sub(r'\s+', ' ', s.replace('[V]', '')) for s in item['generated_prompt']]
+        generated_prompts = [s.replace('[V]', identifier) for s in item['generated_prompt']]
+        real_prompts = [re.sub(r'\s+', ' ', s.replace('[V]', '')) for s in item['real_prompt']]
 
     real_prompts = tokenizer(real_prompts, max_length=tokenizer.model_max_length, padding='do_not_pad', truncation=True).input_ids
     generated_prompts = tokenizer(generated_prompts, max_length=tokenizer.model_max_length, padding='do_not_pad', truncation=True).input_ids
@@ -167,10 +168,10 @@ def generate_identifier(length = 3):
 
 def collate_fn(item):
     real_images = torch.stack([img['real_images'] for img in item]).to(memory_format=torch.contiguous_format).float()
-    generated_images = torch.stack([img['real_images'] for img in item]).to(memory_format=torch.contiguous_format).float()
+    generated_images = torch.stack([img['generated_images'] for img in item]).to(memory_format=torch.contiguous_format).float()
 
     real_prompts = [prompt['real_prompts'] for prompt in item]
-    generated_prompts = [prompt['real_prompts'] for prompt in item]
+    generated_prompts = [prompt['generated_prompts'] for prompt in item]
 
     real_prompts = tokenizer.pad({"input_ids": real_prompts}, padding=True, return_tensors="pt")
     generated_prompts = tokenizer.pad({"input_ids": generated_prompts}, padding=True, return_tensors="pt")
@@ -235,6 +236,10 @@ if __name__ == '__main__':
     dataset.set_transform(preprocess_fn)
     train_dataloader = torch.utils.data.DataLoader(dataset, batch_size=config.train_batch_size, shuffle=True,
                                                    collate_fn=collate_fn)
+
+    """#test
+    for step, batch in enumerate(train_dataloader):
+        test_generated_imgs(batch['generated_images'])"""
 
     # read the eval list from json file
     eval_list = json.load(open(config.eval_file, 'r'))
@@ -325,7 +330,7 @@ if __name__ == '__main__':
                 accelerator.backward(loss)
 
                 if accelerator.sync_gradients:
-                    accelerator.clip_grad_norm_(unet.parameters(), 1.0)
+                    accelerator.clip_grad_norm_(list(unet.parameters()) + list(text_encoder.parameters()), 1.0)
 
                 optimizer.step()
                 #lr_scheduler.step()
