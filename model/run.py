@@ -94,7 +94,7 @@ def parse_args():
     parser.add_argument(
         '--train_batch_size',
         type=int,
-        default=1,
+        default=8,
         help='the batch size for training',
     )
 
@@ -122,7 +122,7 @@ def parse_args():
     parser.add_argument(
         '--eval_every_steps',
         type=int,
-        default=2,
+        default=50,
         help='the batch size for training',
     )
 
@@ -204,9 +204,9 @@ def eval(config, epoch, promts, text_encoder, vae, unet, device='cuda', repo=Non
         images = pipeline(prompt, guidance_scale=scale, num_inference_steps=steps).images
 
         for idx, im in enumerate(images):
-            im.save(f"{config.eval_path}/{config.subject}/{prompt}_{epoch}_{idx:06}.png")
+            im.save(f"{config.eval_path}/{config.subject}/{prompt}_{epoch}_{idx:02}.png")
 
-    pipeline.save_pretrained(os.path.join(config.saved_dir, config.subject, f'saved_model_{epoch}'))
+    pipeline.save_pretrained(os.path.join(config.save_path, config.subject, f'saved_model_{epoch}'))
     del pipeline
 
     if repo is not None:
