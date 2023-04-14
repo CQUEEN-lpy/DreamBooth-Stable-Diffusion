@@ -35,7 +35,7 @@ def parse_args():
     parser.add_argument(
         "--identifier_len",
         type=int,
-        default=3,
+        default=5,
         required=False,
         help="the length of the random identifier",
     )
@@ -102,7 +102,7 @@ def parse_args():
     parser.add_argument(
         '--lr',
         type=float,
-        default=1e-05,
+        default=5e-06,
         help='the batch size for training',
     )
 
