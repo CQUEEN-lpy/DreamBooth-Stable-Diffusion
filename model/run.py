@@ -12,6 +12,7 @@ from diffusers.pipelines.stable_diffusion import StableDiffusionSafetyChecker
 from accelerate import Accelerator
 import torch.nn.functional as F
 from utils.tools import test_generated_imgs
+import lightning.pytorch as pl
 
 def parse_args():
     parser = argparse.ArgumentParser(description="generating images using the frozen pretrained diffusion model")
@@ -35,7 +36,7 @@ def parse_args():
     parser.add_argument(
         "--identifier_len",
         type=int,
-        default=5,
+        default=8,
         required=False,
         help="the length of the random identifier",
     )
@@ -95,14 +96,14 @@ def parse_args():
     parser.add_argument(
         '--train_batch_size',
         type=int,
-        default=8,
+        default=4,
         help='the batch size for training',
     )
 
     parser.add_argument(
         '--lr',
         type=float,
-        default=5e-06,
+        default=1e-06,
         help='the batch size for training',
     )
 
@@ -123,7 +124,7 @@ def parse_args():
     parser.add_argument(
         '--eval_every_steps',
         type=int,
-        default=50,
+        default=25,
         help='the batch size for training',
     )
 
@@ -141,8 +142,8 @@ def preprocess(item, transform, tokenizer, identifier=None):
     generated_images = [transform(image.convert('RGB')) for image in item['generated_image']]
 
     if identifier:
-        generated_prompts = [s.replace('[V]', identifier) for s in item['generated_prompt']]
-        real_prompts = [re.sub(r'\s+', ' ', s.replace('[V]', '')) for s in item['real_prompt']]
+        real_prompts = [s.replace('[V]', identifier) for s in item['real_prompt']]
+        generated_prompts = [re.sub(r'\s+', ' ', s.replace('[V]', '')) for s in item['generated_prompt']]
 
     real_prompts = tokenizer(real_prompts, max_length=tokenizer.model_max_length, padding='do_not_pad', truncation=True).input_ids
     generated_prompts = tokenizer(generated_prompts, max_length=tokenizer.model_max_length, padding='do_not_pad', truncation=True).input_ids
@@ -216,6 +217,7 @@ def eval(config, epoch, promts, text_encoder, vae, unet, device='cuda', repo=Non
 
 if __name__ == '__main__':
     config = parse_args()
+    pl.seed_everything(9527)
 
     # prepare the dataset
     dataset = get_dataset(real_json=config.real_path, generated_json=config.generated_path, subject=config.subject, root_path=config.img_path)

@@ -38,7 +38,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        '--subjects',
+        '--subject',
         type=str,
         default='dog6',
         help='The subject id',
@@ -47,7 +47,7 @@ def parse_args():
     parser.add_argument(
         '--identifier',
         type=str,
-        default='dog6',
+        default='ZIdNKNNC',
         help='The identifier',
     )
 
@@ -55,7 +55,7 @@ def parse_args():
         '--checkpoint_list',
         nargs='+',
         type=str,
-        default=['100, 200, 300, 400, 500'],
+        default=['175', '275', '375', '475', '575'],
         help='The subject id',
     )
 
@@ -63,24 +63,26 @@ def parse_args():
     os.makedirs(args.img_path, exist_ok=True)
     return args
 
-n_samples, scale, steps = 8, 7.5, 50
+n_samples, scale, steps = 8, 7.5, 500
 
 if __name__ == '__main__':
     config = parse_args()
 
-    eval_list = json.load(open(config.eval_file, 'r'))
+    eval_list = json.load(open(config.eval_json, 'r'))
     eval_list = [s.replace('[V]', config.identifier) for s in eval_list[config.subject]]
 
     for check_point_id in config.checkpoint_list:
-        check_point_path = os.path.join(config.model_path, check_point_id)
+        check_point_path = os.path.join(config.model_path, f'saved_model_{check_point_id}')
         pipe = StableDiffusionPipeline.from_pretrained(check_point_path, torch_dtype=torch.float32)
         pipe = pipe.to("cuda")
 
         save_path = os.path.join(config.img_path, config.subject, check_point_id)
         os.makedirs(save_path, exist_ok=True)
 
-        for prompt in eval_list[config.subject]:
+        for prompt in eval_list:
             images = pipe(prompt, guidance_scale=scale, num_inference_steps=steps, num_images_per_prompt=n_samples).images
 
             for idx, im in enumerate(images):
                 im.save(f"{save_path}/{prompt}_{idx:02}.png")
+
+        del pipe
