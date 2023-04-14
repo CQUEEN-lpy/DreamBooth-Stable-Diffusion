@@ -80,7 +80,7 @@ if __name__ == '__main__':
         os.makedirs(save_path, exist_ok=True)
 
         for prompt in eval_list[config.subject]:
-            images = pipe(prompt, guidance_scale=scale, num_inference_steps=steps).images
+            images = pipe(prompt, guidance_scale=scale, num_inference_steps=steps, num_images_per_prompt=n_samples).images
 
             for idx, im in enumerate(images):
                 im.save(f"{save_path}/{prompt}_{idx:02}.png")
