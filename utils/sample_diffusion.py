@@ -54,7 +54,7 @@ def parse_args():
         '--subjects',
         nargs='+',
         type=str,
-        default=['red_cartoon'],
+        default=['pink_sunglasses'],
         help='The subject id',
     )
 
