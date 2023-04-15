@@ -93,6 +93,10 @@ if __name__ == '__main__':
             prompt = prompt.replace('[V]', '', 3)
             prompt = re.sub(r'\s+', ' ', prompt)
 
+            if os.path.exists(os.path.join(config.img_path, item['img_path'])):
+                print(f'skipping {item["img_path"]}')
+                continue
+
             image = pipe(prompt).images[0]
             tmp_path = os.path.join(config.img_path, item['img_path'])
             image.save(tmp_path)

@@ -61,18 +61,21 @@ def create_simple_prompt_generated(num=1000):
         json.dump(prompt_dict, f)
 
 def create_eval(path, subject):
-    dict = {}
+    try:
+        dict = json.load(open(path, 'r'))
+    except:
+        dict = {}
     dict[subject] = [
-        'a [V] dog in the Acropolis',
-        'a swimming [V] dog',
-        'a [V] dog in a bucket',
-        'a sleeping [V] dog',
-        'a [V] dog in a dog house',
-        'a [V] dog getting a haircut'
+        'A woman wearing [V] boots, strolling through a market.',
+        'A pair of [V] boots floating in zero gravity.',
+        'A [V] boot carefully placed on a train platform.',
+        'A bike rider with [V] boots leisurely pedaling.',
+        'a red [V] boot',
+        'batman wearing [V] boots'
     ]
 
     with open(path, 'w') as f:
         json.dump(dict, f)
 
 if __name__ == '__main__':
-    create_eval('../data/eval.json', 'dog6')
+    create_eval('../data/eval.json', 'fancy_boot')

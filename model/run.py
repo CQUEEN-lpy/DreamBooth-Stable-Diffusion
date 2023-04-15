@@ -2,7 +2,7 @@ import argparse, os, random, string, json, math
 from tqdm.auto import tqdm
 from diffusers import AutoencoderKL, DDPMScheduler, PNDMScheduler, StableDiffusionPipeline, UNet2DConditionModel
 from diffusers.optimization import get_scheduler
-from utils.DreamBooth_Dataset import get_dataset
+from ..utils.DreamBooth_Dataset import get_dataset
 from transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
 import functools
 from torchvision import transforms
@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument(
         "--subject",
         type=str,
-        default='dog6',
+        default='fancy_boot',
         required=False,
         help="The subject we want to finetune on",
     )
