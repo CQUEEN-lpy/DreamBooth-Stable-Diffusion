@@ -1,10 +1,10 @@
 from transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
 
 tokenizer = CLIPTokenizer.from_pretrained("runwayml/stable-diffusion-v1-5", subfolder="tokenizer")
-print(tokenizer('a [V] dog'))
-print(tokenizer('To generate a random string sequence in Python, you can use the random module and the string module. The string module provides a set of constants for different types of characters (such as digits, uppercase letters, lowercase letters, punctuation, etc.), and the random module provides functions for generating random numbers. Heres an example that generates a random string sequence of length 10:'))
+print(tokenizer('boot'))
+print(tokenizer('boots'))
 
-import random
+"""import random
 import string
 
 # Define the length of the string sequence
@@ -20,4 +20,4 @@ random_sequence = ''.join(random.choice(characters) for i in range(length))
 
 origin = 'a [V] dog'
 t = origin.replace('[V]', random_sequence)
-print(t)
+print(t)"""
