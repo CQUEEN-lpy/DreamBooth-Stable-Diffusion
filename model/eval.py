@@ -55,7 +55,7 @@ def parse_args():
         '--checkpoint_list',
         nargs='+',
         type=str,
-        default=['175', '275', '375', '475', '575'],
+        default=[ '275', '375', '475', '575'],
         help='The subject id',
     )
 
