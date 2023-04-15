@@ -66,15 +66,15 @@ def create_eval(path, subject):
     except:
         dict = {}
     dict[subject] = [
-        'the [V] cartoon with a oversized hat joyfully skipped down the sidewalk',
-        'a sudden gust of wind blew off [V] cartoon\'s oversized hat',
-        'the [V] cartoon chased after the hat, stumbling over a stray cat.',
-        'the cat hissed and climbed up [V] cartoon, leaving scratch marks',
-        'the [V] cartoon finally retrieved the oversized hat and wore it, now full of cat hair',
+        'a dog wearing [V] glasses',
+        'a boy with [V] glasses',
+        'a [V] glasses on an open book',
+        'Mona Lisa wearing [V] glasses',
+        'gril with a pearl earring, wearing [V] glasses',
     ]
 
     with open(path, 'w') as f:
         json.dump(dict, f)
 
 if __name__ == '__main__':
-    create_eval('../data/eval.json', 'red_cartoon')
+    create_eval('../data/eval.json', 'pink_sunglasses')

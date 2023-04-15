@@ -20,7 +20,7 @@ def parse_args():
     parser.add_argument(
         "--subject",
         type=str,
-        default='red_cartoon',
+        default='pink_sunglasses',
         required=False,
         help="The subject we want to finetune on",
     )
