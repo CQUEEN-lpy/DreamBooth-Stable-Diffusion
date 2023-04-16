@@ -55,7 +55,7 @@ def parse_args():
         '--checkpoint_list',
         nargs='+',
         type=str,
-        default=[ '275', '375', '475', '575'],
+        default=['375'],
         help='The subject id',
     )
 
@@ -63,7 +63,7 @@ def parse_args():
     os.makedirs(args.img_path, exist_ok=True)
     return args
 
-n_samples, scale, steps = 8, 7.5, 500
+n_samples, scale, steps = 8, 7.5, 999
 
 if __name__ == '__main__':
     config = parse_args()
