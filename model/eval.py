@@ -16,7 +16,7 @@ def parse_args():
     parser.add_argument(
         "--model_path",
         type=str,
-        default="../log/saved_models/dog6",
+        default="../log/saved_models/pink_sunglasses",
         required=False,
         help="the pretrained checkpoint path",
     )
@@ -40,7 +40,7 @@ def parse_args():
     parser.add_argument(
         '--subject',
         type=str,
-        default='dog6',
+        default='pink_sunglasses',
         help='The subject id',
     )
 
@@ -55,7 +55,7 @@ def parse_args():
         '--checkpoint_list',
         nargs='+',
         type=str,
-        default=['175', '275', '375', '475', '575'],
+        default=['300', '400', '500', '600', '70'],
         help='The subject id',
     )
 
