@@ -40,7 +40,7 @@ def parse_args():
     parser.add_argument(
         '--subject',
         type=str,
-        default='pink_sunglasses',
+        default='red_cartoon',
         help='The subject id',
     )
 
@@ -55,7 +55,7 @@ def parse_args():
         '--checkpoint_list',
         nargs='+',
         type=str,
-        default=['300', '400', '500', '600', '70'],
+        default=['325', '350', '400', '450', '525'],
         help='The subject id',
     )
 
