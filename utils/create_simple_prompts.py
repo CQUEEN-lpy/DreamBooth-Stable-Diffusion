@@ -66,9 +66,9 @@ def create_eval(path, subject):
     except:
         dict = {}
     dict[subject] = [
-        'a batman [V] cartoon',
-        'a [V] cartoon casting fire balls',
-        'a sleeping [V] cartoon',
+        'a [V1] dog sitting next to [V2] glasses',
+        'a [V1] dog wearing [V2] glasses',
+        'a [V1] dog carrying a pair of [V2] glasses',
     ]
 
     with open(path, 'w') as f:
