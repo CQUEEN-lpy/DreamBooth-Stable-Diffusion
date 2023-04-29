@@ -7,6 +7,6 @@ Please note that this implementation requires a GPU with at least **24GB** of VR
 
 ## Usage
 ### Requirement
-'''
+```
 pip install requirement.txt
-'''
+```
