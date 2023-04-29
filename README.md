@@ -5,8 +5,8 @@ This repository is built upon [Stable Diffusion](https://github.com/CompVis/stab
 
 Please note that this implementation requires a GPU with at least **24GB** of VRAM to run. 
 
-##Usage
-###Requirement
+## Usage
+### Requirement
 '''
 pip install requirement.txt
 '''
