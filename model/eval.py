@@ -22,9 +22,9 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--eval_json",
+        "--eval_file",
         type=str,
-        default="../data/eval.json",
+        default="../data/eval.txt",
         required=False,
         help="the path where prompt json is stored",
     )

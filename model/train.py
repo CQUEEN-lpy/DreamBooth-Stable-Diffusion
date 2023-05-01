@@ -1,7 +1,6 @@
 import argparse, os, random, string, json, math
 from tqdm.auto import tqdm
 from diffusers import AutoencoderKL, DDPMScheduler, PNDMScheduler, StableDiffusionPipeline, UNet2DConditionModel
-from diffusers.optimization import get_scheduler
 from utils.DreamBooth_Dataset import get_dataset
 from transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
 import functools
@@ -11,7 +10,6 @@ import torch
 from diffusers.pipelines.stable_diffusion import StableDiffusionSafetyChecker
 from accelerate import Accelerator
 import torch.nn.functional as F
-from utils.tools import test_generated_imgs
 import lightning.pytorch as pl
 
 def parse_args():
@@ -44,7 +42,7 @@ def parse_args():
     parser.add_argument(
         "--real_path",
         type=str,
-        default='../data/prompt_simple_real.json',
+        default='../data/real.json',
         required=False,
         help="the json path for real json",
     )
@@ -52,7 +50,7 @@ def parse_args():
     parser.add_argument(
         "--generated_path",
         type=str,
-        default='../data/prompt_simple_generated.json',
+        default='../data/generated.json',
         required=False,
         help="the json path for generated json",
     )
@@ -62,7 +60,7 @@ def parse_args():
         type=str,
         default='../data/img',
         required=False,
-        help="the path where class json is stored",
+        help="img path",
     )
 
     parser.add_argument(
@@ -82,7 +80,7 @@ def parse_args():
     parser.add_argument(
         '--eval_file',
         type=str,
-        default='../data/eval.json',
+        default='../data/eval.txt',
         help='the eval file to save the eval prompts',
     )
 
@@ -118,16 +116,15 @@ def parse_args():
         '--gradient_accumlation_steps',
         type=int,
         default=1,
-        help='the batch size for training',
+        help='the gradient_accumulation steps',
     )
 
     parser.add_argument(
         '--eval_every_steps',
         type=int,
         default=25,
-        help='the batch size for training',
+        help='how often we eval the model',
     )
-
 
     args = parser.parse_args()
 

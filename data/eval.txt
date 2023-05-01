@@ -1,0 +1,5 @@
+a [V] sleeping dog
+a [V] dog getting haircut
+a swimming [V] dog
+a [V] dog in a doghouse
+a [V] dog in a bucket
