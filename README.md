@@ -2,6 +2,6 @@
 
 This is my amazing project.
 
-<img src="./data/repo/2.png" alt="Subject Set" width="200px">
+<img src="./data/repo/2.png" alt="Subject Set" style="transform: scale(0.5, 2);">
 
 More details about my project.
