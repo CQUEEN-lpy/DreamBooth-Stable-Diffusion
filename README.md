@@ -1,5 +1,5 @@
 # DreamBooth-Stable-Diffusion
-![DreamBooth](./data/img/repo/1.png)
+![DreamBooth](./data/repo/1.png)
 This project is a reimplementation of the [DreamBooth](https://arxiv.org/abs/2208.12242) paper.
 
 This repository is built upon [Stable Diffusion](https://github.com/CompVis/stable-diffusion) usiong Hugging Face's APIs, specifically using their 'diffusers', 'transformers', and 'datasets' libraries.
